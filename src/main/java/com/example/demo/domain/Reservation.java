@@ -23,12 +23,12 @@ public class Reservation {
     private String seatNumber;
     private LocalDateTime reservationTime;
 
-    // public Reservation(Long id,Long performanceId, String seatNumber) {
-    //     this.id = id;
-    //     this.performanceId = performanceId;
-    //     this.seatNumber = seatNumber;
-    //     this.reservationTime = LocalDateTime.now();
-    // }
+    public Reservation(Long id,Long performanceId, String seatNumber) {
+        this.id = id;
+        this.performanceId = performanceId;
+        this.seatNumber = seatNumber;
+        this.reservationTime = LocalDateTime.now();
+    }
     public Reservation(Long id, Long performanceId, String seatNumber, LocalDateTime reservationTime) {
         this.id = id;
         this.performanceId = performanceId;

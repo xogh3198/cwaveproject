@@ -69,15 +69,22 @@ public class PerformanceController {
     //     } catch (IllegalArgumentException e) {
     //         return ResponseEntity.badRequest().build();
     //     }
+    // public ResponseEntity<Reservation> reserveSeat(@PathVariable Long id, 
+    //                                                @RequestParam String seatNumber,@RequestParam String schedule) {
+    //     try {
+    //         Reservation reservation = performanceService.reserveSeat(id, seatNumber,seatNumber);
+    //         return ResponseEntity.ok(reservation); // 유효한 JSON 객체로 반환
+    //     } catch (IllegalArgumentException e) {
+    //         return ResponseEntity.badRequest().build();
+    //     }
     public ResponseEntity<Reservation> reserveSeat(@PathVariable Long id, 
                                                    @RequestParam String seatNumber,
                                                    @RequestParam String schedule) {
         try {
-            // service.reserveSeat() 호출 시 schedule 인자 전달
             Reservation reservation = performanceService.reserveSeat(id, schedule, seatNumber);
             return ResponseEntity.ok(reservation);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
     }
-}
+    }

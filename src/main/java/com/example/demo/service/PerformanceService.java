@@ -43,13 +43,7 @@ public class PerformanceService {
     public Performance getPerformance(Long id) {
         return performances.get(id);
     }
-    // public List<String> getAvailableSchedule(Long performanceId) {
-    //     Performance performance = performances.get(performanceId);
-    //     if (performance != null) {
-    //         return new java.util.ArrayList<>(performance.getRemainingSeatsBySchedule().keySet());
-    //     }
-    //     return Collections.emptyList();
-    // }
+    
     public Map<String, Integer> getAvailableSchedule(Long performanceId) {
         Performance performance = performances.get(performanceId);
         if (performance != null) {
@@ -58,23 +52,7 @@ public class PerformanceService {
         }
         return Collections.emptyMap();
     }
-    //  public synchronized Reservation reserveSeat(Long performanceId, String schedule, String seatNumber) {
-    //     Performance performance = performances.get(performanceId);
-    //     if (performance == null) {
-    //         throw new IllegalArgumentException("존재하지 않는 공연입니다.");
-    //     }
-        
-    //     AtomicInteger remainingSeats = performance.getRemainingSeatsBySchedule().get(schedule);
-    //     if (remainingSeats == null || remainingSeats.get() <= 0) {
-    //         throw new IllegalArgumentException("잔여 좌석이 없습니다.");
-    //     }
-        
-    //     remainingSeats.decrementAndGet();
-        
-    //     Long newId = reservationCounter.incrementAndGet();
-    //     return new Reservation(newId, performanceId, seatNumber, LocalDateTime.now());
-    // }
-    public synchronized Reservation reserveSeat(Long performanceId, String schedule, String seatNumber) {
+     public synchronized Reservation reserveSeat(Long performanceId, String schedule, String seatNumber) {
         Performance performance = performances.get(performanceId);
         if (performance == null) {
             throw new IllegalArgumentException("존재하지 않는 공연입니다.");
@@ -91,31 +69,12 @@ public class PerformanceService {
         return new Reservation(newId, performanceId, seatNumber, LocalDateTime.now());
     }
 
-    // 좌석 예매 로직 (동시성 제어)
-//     public synchronized Reservation reserveSeat(Long performanceId, String seatNumber) {
-//         Performance performance = performances.get(performanceId);
-//         if (performance == null || performance.getRemainingSeats().get() <= 0) {
-//             throw new IllegalArgumentException("잔여 좌석이 없습니다.");
-//         }
-//         performance.getRemainingSeats().decrementAndGet();
-        
-//         // 잔여 좌석이 0보다 클 때만 감소
-//         //return new Reservation(reservationCounter.incrementAndGet());
-//         return new Reservation(reservationCounter.incrementAndGet(), performanceId, seatNumber, LocalDateTime.now());
-// }
-    
     public void confirmReservation(Long performanceId) {
         Performance performance = performances.get(performanceId);
-        if (performance != null && performance.getRemainingSeats() != null) {
-            performance.getRemainingSeats().decrementAndGet();
+        if (performance != null) {
+            performance.getRemainingSeatsBySchedule().values().stream().findFirst().ifPresent(AtomicInteger::decrementAndGet);
         }
     }
-
-    // 잔여 좌석 수 조회
-    // public int getRemainingSeats(Long performanceId) {
-    //     Performance performance = performances.get(performanceId);
-    //     return performance != null ? performance.getRemainingSeats().get() : 0;
-    // }
     public int getRemainingSeats(Long performanceId) {
         Performance performance = performances.get(performanceId);
         return performance != null ? performance.getRemainingSeatsBySchedule().values().stream().mapToInt(AtomicInteger::get).sum() : 0;
