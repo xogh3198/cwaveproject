@@ -8,6 +8,7 @@ import com.example.demo.service.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -41,11 +42,15 @@ public class PerformanceController {
         return ResponseEntity.ok(performance);
     }
     @GetMapping("/{id}/schedule")
-    public ResponseEntity<List<String>> getAvailableSchedule(@PathVariable Long id) {
-        List<String> schedule = performanceService.getAvailableSchedule(id);
+    // public ResponseEntity<List<String>> getAvailableSchedule(@PathVariable Long id) {
+    //     // List<String> schedule = performanceService.getAvailableSchedule(id);
+    //     // return ResponseEntity.ok(schedule);
+    //     return ResponseEntity.ok(performanceService.getAvailableSchedule(id));
+    // }
+    public ResponseEntity<Map<String, Integer>> getAvailableSchedule(@PathVariable Long id) {
+        Map<String, Integer> schedule = performanceService.getAvailableSchedule(id);
         return ResponseEntity.ok(schedule);
     }
-
     // 3. 대기열 진입
     @PostMapping("/{id}/queue")
     public ResponseEntity<String> enterWaitingQueue(@PathVariable Long id, @RequestParam String userId) {
@@ -55,29 +60,22 @@ public class PerformanceController {
     
     // 4. 좌석 예매 로직 호출
     @PostMapping("/{id}/reserve")
-    public ResponseEntity<Reservation> reserveSeat(@PathVariable Long id, @RequestParam String seatNumber) {
-//         try {
-//             Reservation reservation = performanceService.reserveSeat(id);
-//             boolean paymentSuccess = paymentService.processPayment(reservation.getId(), "카드정보 등");
-//             if (paymentSuccess) {
-//                 return ResponseEntity.ok(reservation);
-//             }
-//             else{
-//                 throw new IllegalStateException("결제 실패");
-//             }
-//             //return ResponseEntity.ok(reservation); // JSON 객체로 반환
-//         } catch (IllegalArgumentException e) {
-//             return ResponseEntity.badRequest().build();
-//         } catch (IllegalStateException e){
-//             return ResponseEntity.status(402).build();
-//         }
-//     }
-// }
+    // public ResponseEntity<Reservation> reserveSeat(@PathVariable Long id, @RequestParam String seatNumber, @RequestParam String schedule) {
+    //     try {
+    //         // 좌석 예매 로직을 수행하고, 예매 ID를 가진 Reservation 객체 반환
+    //         Reservation reservation = performanceService.reserveSeat(id, schedule, seatNumber);
+    //         // 결제 API를 따로 호출하므로, 여기서는 예매 ID만 반환
+    //         return ResponseEntity.ok(reservation); // 유효한 JSON 객체로 반환
+    //     } catch (IllegalArgumentException e) {
+    //         return ResponseEntity.badRequest().build();
+    //     }
+    public ResponseEntity<Reservation> reserveSeat(@PathVariable Long id, 
+                                                   @RequestParam String seatNumber,
+                                                   @RequestParam String schedule) {
         try {
-            // 좌석 예매 로직을 수행하고, 예매 ID를 가진 Reservation 객체 반환
-            Reservation reservation = performanceService.reserveSeat(id, seatNumber);
-            // 결제 API를 따로 호출하므로, 여기서는 예매 ID만 반환
-            return ResponseEntity.ok(reservation); // 유효한 JSON 객체로 반환
+            // service.reserveSeat() 호출 시 schedule 인자 전달
+            Reservation reservation = performanceService.reserveSeat(id, schedule, seatNumber);
+            return ResponseEntity.ok(reservation);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
