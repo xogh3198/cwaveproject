@@ -24,47 +24,6 @@
         <div id="reserve-status" class="mt-3"></div>
     </div>
 
-<!-- <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const perfId = params.get('id');
-            const schedule = params.get('schedule');
-            const userId = "user-" + Math.floor(Math.random() * 1000); // 사용자 ID를 랜덤으로 가정
-
-            if (perfId) {
-                document.getElementById('perf-id').textContent = perfId;
-                document.getElementById('perf-schedule').textContent = schedule;
-            }
-
-            document.getElementById('reserve-form').addEventListener('submit', (event) => {
-                event.preventDefault();
-                const seatNumber = document.getElementById('seat-number').value;
-                const submitButton = document.getElementById('submit-button');
-                
-                submitButton.disabled = true;
-                document.getElementById('reserve-status').innerHTML = `<div class="alert alert-info">예매 처리 중...</div>`;
-
-                fetch(`http://localhost:8080/api/performances/${perfId}/reserve?seatNumber=${seatNumber}&schedule=${schedule}&userId=${userId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => { throw new Error(text) });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // 예매 성공 후 반환된 JSON 객체에서 id를 추출하여 결제 페이지로 이동
-                    window.location.href = `payment.html?reservationId=${data.id}`;
-                })
-                .catch(error => {
-                    document.getElementById('reserve-status').innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
-                    submitButton.disabled = false;
-                });
-            });
-        });
-    </script> -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(window.location.search);
