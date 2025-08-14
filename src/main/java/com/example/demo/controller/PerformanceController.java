@@ -64,12 +64,15 @@ public class PerformanceController {
         return ResponseEntity.ok(schedules);
     }
     
+    @Operation(summary = "좌석 예매", description = "특정 스케줄의 좌석을 예매합니다.")
     @PostMapping("/{scheduleId}/reserve")
     public ResponseEntity<?> reserveSeat(
-            @PathVariable Long scheduleId,
-            @RequestParam String seatNumber) {
+            @Parameter(description = "스케줄 ID", required = true) @PathVariable Long scheduleId,
+            @Parameter(description = "사용자 ID (Cognito로부터 받은 정보)", required = true) @RequestParam String userId,
+            @Parameter(description = "좌석 코드", required = true) @RequestParam String seatCode) { // 파라미터 수정
         try {
-            Reservation reservation = reservationService.reserveSeat(scheduleId, seatNumber);
+            // 3개의 인자를 모두 사용하여 서비스 메서드 호출
+            Reservation reservation = reservationService.reserveSeat(scheduleId, userId, seatCode);
             return ResponseEntity.ok(reservation);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

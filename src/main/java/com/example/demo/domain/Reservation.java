@@ -16,24 +16,37 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Getter @Setter
 @NoArgsConstructor
 public class Reservation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "예매 ID", example = "1")
+    @Schema(description = "예매 ID", example = "991")
     private Long id;
 
-    // schedule_id를 통해 Schedule 엔티티와 관계를 맺습니다.
+    // ▼▼▼ --- 수정된 부분 --- ▼▼▼
+    @Schema(description = "사용자 ID (Cognito로부터 받은 정보)", example = "a1b2c3d4-...")
+    @Column(name = "user_id", nullable = false)
+    private String userId;
+
+    // Schedule과의 관계를 명확히 하여 공연 정보에 쉽게 접근하도록 합니다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id")
+    @JsonIgnore // 순환 참조 방지
     private Schedule schedule;
 
-    @Schema(description = "좌석 번호", example = "A1")
-    @Column(name = "seat_number", nullable = false)
-    private String seatNumber;
-    
+    @Schema(description = "좌석 코드", example = "A10")
+    @Column(name = "seat_code", nullable = false)
+    private String seatCode;
+    // ▲▲▲ --- 수정된 부분 --- ▲▲▲
 
-    // 생성자를 Schedule 객체를 받도록 수정합니다.
-    public Reservation(Schedule schedule, String seatNumber) {
+    @Column(name = "reservation_time", nullable = false)
+    private LocalDateTime reservationTime;
+
+
+    // 생성자 수정
+    public Reservation(String userId, Schedule schedule, String seatCode) {
+        this.userId = userId;
         this.schedule = schedule;
-        this.seatNumber = seatNumber;
+        this.seatCode = seatCode;
+        this.reservationTime = LocalDateTime.now();
     }
 }

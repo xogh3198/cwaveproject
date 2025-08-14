@@ -1,11 +1,20 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.PerformanceService;
+import com.example.demo.domain.Performance;
+import com.example.demo.domain.Reservation;
+import com.example.demo.domain.Schedule;
+import com.example.demo.dto.TicketEvent;
+import com.example.demo.service.KafkaProducerService;
 import com.example.demo.service.PaymentService;
 import com.example.demo.service.ReservationService;
+
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.Getter;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,27 +41,49 @@ class PaymentConfirmation {
 public class PaymentController {
 
     private final PaymentService paymentService;
-    private final PerformanceService performanceService;
     private final ReservationService reservationService;
+    // ▼▼▼ --- 수정된 부분 --- ▼▼▼
+    private final KafkaProducerService kafkaProducerService;
 
-    public PaymentController(PaymentService paymentService, PerformanceService performanceService, ReservationService reservationService) {
+    public PaymentController(PaymentService paymentService, ReservationService reservationService, KafkaProducerService kafkaProducerService) {
         this.paymentService = paymentService;
-        this.performanceService = performanceService;
         this.reservationService = reservationService;
+        this.kafkaProducerService = kafkaProducerService;
     }
+    // ▲▲▲ --- 수정된 부분 --- ▲▲▲
 
-    @Operation(summary = "결제 확인 처리", description = "예매에 대한 결제를 처리하고 좌석을 확정합니다.")
+    @Operation(summary = "결제 확인 처리", description = "예매에 대한 결제를 처리하고 티켓 시스템에 정보를 전송합니다.")
     @PostMapping("/{reservationId}/confirm")
-    public ResponseEntity<PaymentConfirmation> confirmPayment(
+    public ResponseEntity<?> confirmPayment(
             @Parameter(description = "예매 ID", required = true) @PathVariable Long reservationId) {
         
         boolean paymentSuccess = paymentService.processPayment(reservationId, "결제정보");
 
         if (paymentSuccess) {
-            // reservation -> schedule -> id 순서로 접근하도록 수정합니다.
-            reservationService.getReservationById(reservationId).ifPresent(reservation -> {
-                performanceService.confirmReservation(reservation.getSchedule().getId());
-            });
+            // ▼▼▼ --- 수정된 부분 --- ▼▼▼
+            Optional<Reservation> reservationOptional = reservationService.getReservationById(reservationId);
+            if (reservationOptional.isPresent()) {
+                Reservation reservation = reservationOptional.get();
+                Schedule schedule = reservation.getSchedule();
+                Performance performance = schedule.getPerformance();
+
+                // 카프카로 보낼 TicketEvent DTO 생성
+                TicketEvent event = TicketEvent.builder()
+                        .reservation_id(reservation.getId())
+                        .schedule_id(schedule.getId())
+                        .user_name(reservation.getUserId()) // 예매 시 저장된 사용자 ID 사용
+                        .seat_code(reservation.getSeatCode())
+                        .movie_id(performance.getId())
+                        .movie_name(performance.getName())
+                        .movie_time(schedule.getScheduleTime().format(DateTimeFormatter.ofPattern("HH:mm")))
+                        .poster_url("https://image.tmdb.org/t/p/w500/interstellar_poster.jpg") // 임시 URL
+                        .build();
+                
+                // 카프카 메시지 전송
+                kafkaProducerService.sendTicketEvent(event);
+            }
+            // ▲▲▲ --- 수정된 부분 --- ▲▲▲
+            
             return ResponseEntity.ok(new PaymentConfirmation(reservationId, "success"));
         } else {
             return ResponseEntity.status(402).body(new PaymentConfirmation(reservationId, "failure"));
