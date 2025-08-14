@@ -1,3 +1,5 @@
+
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -19,33 +21,31 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
-            const reservationId = params.get('reservationId'); // URL에서 예매 ID를 가져옵니다.
+            // URL 파라미터 이름을 'id'에서 'reservationId'로 변경합니다.
+            const reservationId = params.get('reservationId'); 
 
             if (reservationId) {
                 // 예매 정보 조회 API 호출
                 fetch(`http://localhost:8080/api/reservations/${reservationId}`)
                     .then(response => {
-                        // 응답이 성공적이지 않으면 오류를 던집니다.
                         if (!response.ok) {
                             return response.text().then(text => {
                                 throw new Error(`예매 정보를 찾을 수 없습니다. (상태 코드: ${response.status})`);
                             });
                         }
-                        // 성공적으로 JSON 객체를 파싱합니다.
                         return response.json();
                     })
                     .then(data => {
                         const infoDiv = document.getElementById('reservation-info');
-                        // 받아온 data 객체의 필드를 사용하여 HTML 콘텐츠를 동적으로 생성합니다.
+                        // data.performanceId 대신 data.schedule.performance.id로 공연 ID를 표시합니다.
                         infoDiv.innerHTML = `
                             <p><strong>예매 ID:</strong> ${data.id}</p>
-                            <p><strong>공연 ID:</strong> ${data.performanceId}</p>
+                            <p><strong>공연 ID:</strong> ${data.schedule.performance.id}</p>
                             <p><strong>좌석 번호:</strong> ${data.seatNumber}</p>
                             <p><strong>예매 시간:</strong> ${new Date(data.reservationTime).toLocaleString()}</p>
                         `;
                     })
                     .catch(error => {
-                        // 오류 발생 시, 오류 메시지를 화면에 표시합니다.
                         document.getElementById('reservation-info').innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
                         console.error('예매 정보 로딩 오류:', error);
                     });

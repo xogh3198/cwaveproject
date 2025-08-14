@@ -1,4 +1,5 @@
-// src/main/java/com/example/demo/controller/ReservationController.java
+
+
 package com.example.demo.controller;
 
 import com.example.demo.domain.Reservation;
@@ -28,7 +29,6 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-    // <<<--- 예매 ID로 예매 내역을 조회하는 API --->>>
     @Operation(summary = "예매 상세 조회", description = "예매 ID로 특정 예매의 상세 정보를 조회합니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "예매 정보 조회 성공",
@@ -38,11 +38,11 @@ public class ReservationController {
     @GetMapping("/{id}")
     public ResponseEntity<Reservation> getReservationDetails(
             @Parameter(description = "예매 ID", required = true) @PathVariable Long id) {
-        // 이 로직이 올바르게 Reservation 객체를 JSON으로 반환하는지 확인
         return reservationService.getReservationById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
     @Operation(summary = "전체 예매 목록 조회", description = "시스템의 모든 예매 내역을 조회합니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "예매 목록 조회 성공",

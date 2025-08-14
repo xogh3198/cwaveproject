@@ -5,44 +5,35 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Entity
 @Table(name = "reservations")
 @Schema(description = "예매 정보")
 @Getter @Setter
-@NoArgsConstructor // <<<--- 기본 생성자 추가
+@NoArgsConstructor
 public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "예매 ID", example = "1")
     private Long id;
-    
-    @Schema(description = "공연 ID", example = "1")
-    private Long performanceId;
-    
+
+    // schedule_id를 통해 Schedule 엔티티와 관계를 맺습니다.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
+
     @Schema(description = "좌석 번호", example = "A1")
+    @Column(name = "seat_number", nullable = false)
     private String seatNumber;
     
-    @Schema(description = "예매 시간", example = "2024-12-15T14:30:00")
-    private LocalDateTime reservationTime;
 
-    public Reservation(Long id,Long performanceId, String seatNumber) {
-        this.id = id;
-        this.performanceId = performanceId;
+    // 생성자를 Schedule 객체를 받도록 수정합니다.
+    public Reservation(Schedule schedule, String seatNumber) {
+        this.schedule = schedule;
         this.seatNumber = seatNumber;
-        this.reservationTime = LocalDateTime.now();
-    }
-    public Reservation(Long id, Long performanceId, String seatNumber, LocalDateTime reservationTime) {
-        this.id = id;
-        this.performanceId = performanceId;
-        this.seatNumber = seatNumber;
-        this.reservationTime = reservationTime;
     }
 }

@@ -1,75 +1,3 @@
-<!-- <!doctype html>
-<html lang="ko">
-<head>
-    <meta charset="utf-8">
-    <title>공연 날짜/시간 선택</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <style>body { padding-top: 2rem; }</style>
-</head>
-<body>
-    <div class="container">
-        <h1 id="perf-title"></h1>
-        <hr>
-        <p id="perf-desc"></p>
-        <p><strong>잔여 좌석:</strong> <span id="perf-seats"></span></p>
-        
-        <div class="form-group">
-            <label for="schedule-select">날짜 및 시간 선택</label>
-            <select class="form-control" id="schedule-select">
-                <option value="" disabled selected>날짜/시간을 선택하세요</option>
-            </select>
-        </div>
-
-        <a id="reserve-link" class="btn btn-primary mt-3" disabled>좌석 예약 페이지로 이동</a>
-        <a href="index.html" class="btn btn-secondary mt-3">목록으로 돌아가기</a>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const perfId = params.get('id');
-
-            if (perfId) {
-                fetch(`http://localhost:8080/api/performances/${perfId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('perf-title').textContent = data.title;
-                        document.getElementById('perf-desc').textContent = data.description;
-                        document.getElementById('perf-seats').textContent = data.remainingSeats;
-                    })
-                    .catch(error => console.error('Error fetching performance details:', error));
-
-                fetch(`http://localhost:8080/api/performances/${perfId}/schedule`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const select = document.getElementById('schedule-select');
-                        data.forEach(schedule => {
-                            const option = document.createElement('option');
-                            option.value = schedule;
-                            option.textContent = schedule;
-                            select.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Error fetching schedule:', error));
-            }
-
-            const reserveButton = document.getElementById('reserve-link');
-            const selectElement = document.getElementById('schedule-select');
-
-            selectElement.addEventListener('change', () => {
-                const selectedSchedule = selectElement.value;
-                if (selectedSchedule) {
-                    const [date, time] = selectedSchedule.split(' ');
-                    reserveButton.disabled = false;
-                    reserveButton.href = `reserve.html?id=${perfId}&date=${date}&time=${time}`;
-                } else {
-                    reserveButton.disabled = true;
-                }
-            });
-        });
-    </script>
-</body>
-</html> -->
 <!doctype html>
 <html lang="ko">
 <head>
@@ -109,16 +37,19 @@
                     })
                     .catch(error => console.error('Error fetching performance details:', error));
 
+                // API 응답이 Schedule 객체의 배열이므로 forEach로 처리합니다.
                 fetch(`http://localhost:8080/api/performances/${perfId}/schedule`)
                     .then(response => response.json())
                     .then(data => {
                         const select = document.getElementById('schedule-select');
-                        for (const schedule in data) {
+                        data.forEach(schedule => {
                              const option = document.createElement('option');
-                             option.value = schedule;
-                             option.textContent = `${schedule} (남은 좌석: ${data[schedule]})`;
+                             // option의 value에 schedule.id를 저장합니다.
+                             option.value = schedule.id; 
+                             const scheduleDate = new Date(schedule.scheduleTime).toLocaleString();
+                             option.textContent = `${scheduleDate} (남은 좌석: ${schedule.remainingSeats})`;
                              select.appendChild(option);
-                        }
+                        });
                     })
                     .catch(error => console.error('Error fetching schedule:', error));
             }
@@ -127,11 +58,11 @@
             const selectElement = document.getElementById('schedule-select');
 
             selectElement.addEventListener('change', () => {
-                const selectedSchedule = selectElement.value;
-                if (selectedSchedule) {
-                    const [date, time] = selectedSchedule.split(' ');
+                const selectedScheduleId = selectElement.value;
+                if (selectedScheduleId) {
                     reserveButton.classList.remove('disabled');
-                    reserveButton.href = `reserve.html?id=${perfId}&date=${date}&time=${time}&schedule=${selectedSchedule}`;
+                    // reserve.html로 performanceId와 scheduleId를 넘겨줍니다.
+                    reserveButton.href = `reserve.html?id=${perfId}&scheduleId=${selectedScheduleId}`;
                 } else {
                     reserveButton.classList.add('disabled');
                     reserveButton.href = "#";

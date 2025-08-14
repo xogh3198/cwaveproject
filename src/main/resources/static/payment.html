@@ -1,3 +1,5 @@
+
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -42,8 +44,8 @@
                     return response.json();
                 })
                 .then(data => {
-                    // 결제 성공 시 최종 확인 페이지로 이동
-                    window.location.href = `reservation-success.html?id=${data.reservationId}`;
+                    // URL 파라미터를 'id'에서 'reservationId'로 수정합니다.
+                    window.location.href = `reservation-success.html?reservationId=${data.reservationId}`;
                 })
                 .catch(error => {
                     document.getElementById('payment-status').innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
