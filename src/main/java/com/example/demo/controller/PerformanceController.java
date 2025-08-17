@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.domain.Performance;
 import com.example.demo.domain.Reservation;
 import com.example.demo.domain.Schedule;
+import com.example.demo.dto.ReservationRequest;
 import com.example.demo.service.PerformanceService;
 import com.example.demo.service.ReservationService;
 import com.example.demo.service.WaitingQueueService;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -68,11 +70,13 @@ public class PerformanceController {
     @PostMapping("/{scheduleId}/reserve")
     public ResponseEntity<?> reserveSeat(
             @Parameter(description = "스케줄 ID", required = true) @PathVariable Long scheduleId,
-            @Parameter(description = "사용자 ID (Cognito로부터 받은 정보)", required = true) @RequestParam String userId,
-            @Parameter(description = "좌석 코드", required = true) @RequestParam String seatCode) { // 파라미터 수정
+            // @Parameter(description = "사용자 ID (Cognito로부터 받은 정보)", required = true) @RequestParam String userId,
+            // @Parameter(description = "사용자 ID", required = true, in = ParameterIn.HEADER) @RequestHeader("X-USER-ID") String userId,
+            @Parameter(description = "좌석 코드", required = true) @RequestBody ReservationRequest request) {
         try {
             // 3개의 인자를 모두 사용하여 서비스 메서드 호출
-            Reservation reservation = reservationService.reserveSeat(scheduleId, userId, seatCode);
+            String tempUserId = "temp-user";
+            Reservation reservation = reservationService.reserveSeat(scheduleId, tempUserId, request.getSeatCode());
             return ResponseEntity.ok(reservation);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

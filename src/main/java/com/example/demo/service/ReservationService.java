@@ -67,3 +67,55 @@ public class ReservationService {
     }
     // ▲▲▲ --- 추가된 부분 --- ▲▲▲
 }
+
+
+// package com.example.demo.service;
+
+// import com.example.demo.domain.Reservation;
+// import com.example.demo.domain.Schedule;
+// import com.example.demo.repository.ReservationRepository;
+// import com.example.demo.repository.ScheduleRepository;
+// import jakarta.persistence.EntityNotFoundException;
+// import lombok.RequiredArgsConstructor;
+// import org.springframework.stereotype.Service;
+// import org.springframework.transaction.annotation.Transactional;
+
+// @Service
+// @RequiredArgsConstructor
+// public class ReservationService {
+
+//     private final ReservationRepository reservationRepository;
+//     private final ScheduleRepository scheduleRepository; // ScheduleRepository 주입
+
+//     @Transactional
+//     public Reservation createReservation(String userId, Long scheduleId, String seatCode) {
+//         // 1. 스케줄 정보 조회
+//         Schedule schedule = scheduleRepository.findById(scheduleId)
+//                 .orElseThrow(() -> new EntityNotFoundException("해당 스케줄을 찾을 수 없습니다. ID: " + scheduleId));
+
+//         // 2. 남은 좌석 확인
+//         if (schedule.getRemainingSeats() <= 0) {
+//             throw new IllegalStateException("남은 좌석이 없습니다.");
+//         }
+
+//         // 3. 남은 좌석 수 감소
+//         schedule.setRemainingSeats(schedule.getRemainingSeats() - 1);
+//         scheduleRepository.save(schedule); // 변경된 좌석 수 저장
+
+//         // 4. 예매 정보 생성 및 저장
+//         Reservation reservation = new Reservation(userId, schedule, seatCode);
+//         return reservationRepository.save(reservation);
+//     }
+
+//     // 예매 ID로 예매 정보를 조회하는 메서드 (취소 시 필요)
+//     public Reservation getReservationById(Long reservationId) {
+//         return reservationRepository.findById(reservationId)
+//                 .orElseThrow(() -> new EntityNotFoundException("해당 예매를 찾을 수 없습니다. ID: " + reservationId));
+//     }
+
+//     // 예매 정보를 삭제하는 메서드 (취소 시 필요)
+//     @Transactional
+//     public void deleteReservation(Long reservationId) {
+//         reservationRepository.deleteById(reservationId);
+//     }
+// }

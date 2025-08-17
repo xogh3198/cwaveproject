@@ -36,34 +36,75 @@
             document.getElementById('perf-schedule-id').textContent = scheduleId;
         }
 
-        document.getElementById('reserve-form').addEventListener('submit', (event) => {
-            event.preventDefault();
-            const seatNumber = document.getElementById('seat-number').value;
-            const submitButton = document.getElementById('submit-button');
+    //     document.getElementById('reserve-form').addEventListener('submit', (event) => {
+    //         event.preventDefault();
+    //         const seatNumber = document.getElementById('seat-number').value;
+    //         const submitButton = document.getElementById('submit-button');
             
-            submitButton.disabled = true;
-            document.getElementById('reserve-status').innerHTML = `<div class="alert alert-info">예매 처리 중...</div>`;
+    //         submitButton.disabled = true;
+    //         document.getElementById('reserve-status').innerHTML = `<div class="alert alert-info">예매 처리 중...</div>`;
 
-            // 예매 API 호출 URL을 {scheduleId}/reserve 로 변경합니다.
-            fetch(`http://localhost:8080/api/performances/${scheduleId}/reserve?seatNumber=${seatNumber}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+    //         // 예매 API 호출 URL을 {scheduleId}/reserve 로 변경합니다.
+    //         fetch(`http://localhost:8080/api/performances/${scheduleId}/reserve?seatNumber=${seatNumber}`, {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //         })
+    //         .then(response => {
+    //             if (!response.ok) {
+    //                 return response.text().then(text => { throw new Error(text) });
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             window.location.href = `payment.html?reservationId=${data.id}`;
+    //         })
+    //         .catch(error => {
+    //             document.getElementById('reserve-status').innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    //             submitButton.disabled = false;
+    //         });
+    //     });
+    // });
+    document.getElementById('reserve-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        
+        // input 필드의 name을 seatCode로 변경하거나, JS에서 맞춰줍니다.
+        const seatCodeValue = document.getElementById('seat-number').value; 
+        const submitButton = document.getElementById('submit-button');
+        
+        submitButton.disabled = true;
+        document.getElementById('reserve-status').innerHTML = `<div class="alert alert-info">예매 처리 중...</div>`;
+
+        // ▼▼▼▼▼▼ 이 부분이 수정되어야 합니다 ▼▼▼▼▼▼
+        
+        // 1. URL에서 쿼리 파라미터를 제거합니다.
+        fetch(`http://localhost:8080/api/performances/${scheduleId}/reserve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // 2. body에 JSON 형식으로 데이터를 담아 보냅니다.
+            body: JSON.stringify({
+                seatCode: seatCodeValue 
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text) });
-                }
-                return response.json();
-            })
-            .then(data => {
-                window.location.href = `payment.html?reservationId=${data.id}`;
-            })
-            .catch(error => {
-                document.getElementById('reserve-status').innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
-                submitButton.disabled = false;
-            });
+        })
+        // ▲▲▲▲▲▲ 여기까지 수정 ▲▲▲▲▲▲
+
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 예매 성공 시 data.id 대신 data.reservationId 또는 백엔드가 보내주는 ID 필드명을 확인해야 합니다.
+            window.location.href = `payment.html?reservationId=${data.id}`;
+        })
+        .catch(error => {
+            document.getElementById('reserve-status').innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            submitButton.disabled = false;
         });
     });
+});
     </script>
 </body>
 </html>

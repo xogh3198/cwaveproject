@@ -35,8 +35,6 @@
 //         scheduleWithSeats.forEach((schedule, seats) -> {
 //             this.remainingSeatsBySchedule.put(schedule, new AtomicInteger(seats));
 //         });
-
-
 // }
 // }
 

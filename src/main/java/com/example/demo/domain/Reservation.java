@@ -38,15 +38,11 @@ public class Reservation {
     private String seatCode;
     // ▲▲▲ --- 수정된 부분 --- ▲▲▲
 
-    @Column(name = "reservation_time", nullable = false)
-    private LocalDateTime reservationTime;
-
 
     // 생성자 수정
     public Reservation(String userId, Schedule schedule, String seatCode) {
         this.userId = userId;
         this.schedule = schedule;
         this.seatCode = seatCode;
-        this.reservationTime = LocalDateTime.now();
     }
 }
