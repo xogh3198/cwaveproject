@@ -73,14 +73,16 @@
         
         submitButton.disabled = true;
         document.getElementById('reserve-status').innerHTML = `<div class="alert alert-info">예매 처리 중...</div>`;
-
+        const accessToken = "eyJraWQiOiJJZjB6bUhtS1RrTVwvNmViNlNkQ3AzM0tXYXRrYnZtZFhkbEI0MzRQVmY1TT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIzNDc4M2Q2Yy04MGYxLTcwNDQtZTdlYi00MmE5NDFhOTUwODciLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLW5vcnRoZWFzdC0yLmFtYXpvbmF3cy5jb21cL2FwLW5vcnRoZWFzdC0yX2dOeE5oV1RqNSIsImNvZ25pdG86dXNlcm5hbWUiOiJ0YWVobyIsIm9yaWdpbl9qdGkiOiJjMDE0NDU5NS1iNzQzLTRjNWMtOTgxOS0yY2M2N2UyZjEzOGMiLCJhdWQiOiI1NGlldXRzMWtzOHZhNThxYTV0dTFiMTA4MSIsImV2ZW50X2lkIjoiYzJjNTBhYjktODFjZC00NTVkLTljNmEtMzk2MWQ5M2NiZWM4IiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE3NTU0ODQwNzcsImV4cCI6MTc1NTQ4NzY3NywiaWF0IjoxNzU1NDg0MDc3LCJqdGkiOiI3MTRlNWE2MC1iMTVhLTRkNmYtOTY4OC04YjhhNjM1YzUxOWUiLCJlbWFpbCI6InRhZWhvMzE5OEBuYXZlci5jb20ifQ.qdDsGlLsS3Qi--_kUNGltTFuSCI_1-0tj2g7A4FLJ5kAqnHdyD28UFijkRSrvQX4d9v401v42auG6D0sfLi53hl221fiE2tQgybrWLVt6gJ9xBw15L5d4ktlArPLw0hNmT-kHqAKQLvUbfnXgaKDowyl91p2XjqOWIAQZOalZVfmPcajz5OF-T7MSrzYgT6ibeZck7dN_UTf6TqoTkMIPxMJ27OBCcOzC5lKoJzdbb9fCsd0mR3dBQSTFmU_TC0bjBF-qcBXBta7Z9VYmFJLBPAcvk94b79Nr-qeqgxMp5YW6_OQpv0Sc5QAb8U5QaVHq4GaZkXPpoFupHKw7VkLug";
         // ▼▼▼▼▼▼ 이 부분이 수정되어야 합니다 ▼▼▼▼▼▼
         
         // 1. URL에서 쿼리 파라미터를 제거합니다.
         fetch(`http://localhost:8080/api/performances/${scheduleId}/reserve`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                // 나중에 Cognito 연동 시 여기에 'Authorization' 헤더를 추가해야 합니다.
+                'Authorization': `Bearer ${accessToken}`
             },
             // 2. body에 JSON 형식으로 데이터를 담아 보냅니다.
             body: JSON.stringify({

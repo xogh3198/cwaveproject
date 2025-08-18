@@ -45,10 +45,10 @@ public class PaymentController {
     // ▼▼▼ --- 수정된 부분 --- ▼▼▼
     private final KafkaProducerService kafkaProducerService;
 
-    public PaymentController(PaymentService paymentService, ReservationService reservationService, KafkaProducerService kafkaProducerService) {
+    public PaymentController(PaymentService paymentService, ReservationService reservationService,KafkaProducerService kafkaProducerService) {
         this.paymentService = paymentService;
         this.reservationService = reservationService;
-        this.kafkaProducerService = kafkaProducerService;
+        this.kafkaProducerService = kafkaProducerService;  
     }
     // ▲▲▲ --- 수정된 부분 --- ▲▲▲
 

@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+// import com.amazonaws.auth.policy.Principal;
+import java.security.Principal;
 import com.example.demo.domain.Performance;
 import com.example.demo.domain.Reservation;
 import com.example.demo.domain.Schedule;
@@ -70,13 +72,16 @@ public class PerformanceController {
     @PostMapping("/{scheduleId}/reserve")
     public ResponseEntity<?> reserveSeat(
             @Parameter(description = "스케줄 ID", required = true) @PathVariable Long scheduleId,
+            Principal principal,
             // @Parameter(description = "사용자 ID (Cognito로부터 받은 정보)", required = true) @RequestParam String userId,
             // @Parameter(description = "사용자 ID", required = true, in = ParameterIn.HEADER) @RequestHeader("X-USER-ID") String userId,
             @Parameter(description = "좌석 코드", required = true) @RequestBody ReservationRequest request) {
         try {
             // 3개의 인자를 모두 사용하여 서비스 메서드 호출
-            String tempUserId = "temp-user";
-            Reservation reservation = reservationService.reserveSeat(scheduleId, tempUserId, request.getSeatCode());
+            String userId = principal.getName();
+            //String userId = "test_id";
+            System.out.println("Authenticated user ID: " + userId);
+            Reservation reservation = reservationService.reserveSeat(scheduleId, userId, request.getSeatCode());
             return ResponseEntity.ok(reservation);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
