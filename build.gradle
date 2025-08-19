@@ -17,7 +17,25 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+    // Spring Cloud 버전을 Spring Boot 버전에 맞게 설정
+    set('springCloudVersion', "2023.0.4")
+	set('springCloudAwsVersion', "3.1.1") 
+}
+
+dependencyManagement {
+    imports {
+        // Spring Cloud 의존성 버전 관리를 위한 BOM 추가
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+		mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}"
+    }
+}
+
+
 dependencies {
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager'
+	//Secrtes Manger 연동을 위한 라이브러리
+
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

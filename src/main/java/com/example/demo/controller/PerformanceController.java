@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-// import com.amazonaws.auth.policy.Principal;
 import java.security.Principal;
 import com.example.demo.domain.Performance;
 import com.example.demo.domain.Reservation;
