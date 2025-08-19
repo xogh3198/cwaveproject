@@ -26,7 +26,7 @@ public class KafkaConsumerService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    @KafkaListener(topics = "reserve-cancel.events", groupId = "reserve-service-group")
+    @KafkaListener(topics = "reserve.events", groupId = "reserve-service-group")
     public void consume(ConsumerRecord<String, String> record) { // 파라미터를 ConsumerRecord로 변경
         // 수신된 메시지의 헤더를 로그로 출력합니다.
         System.out.println("===== Received Message Headers =====");

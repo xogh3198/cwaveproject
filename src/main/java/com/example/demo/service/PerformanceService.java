@@ -25,10 +25,6 @@ public class PerformanceService {
     // 이 메서드에 @Transactional 어노테이션을 추가하여 지연 로딩 문제를 해결합니다.
     @Transactional
     public List<Performance> getAllPerformances() {
-        //List<Performance> performances = performanceRepository.findAll();
-        // 스케줄 정보를 강제로 로딩하여 세션 문제를 방지합니다.
-        //performances.forEach(p -> p.getSchedules().size()); 
-        //return performances;
         return performanceRepository.findAll();
     }
 

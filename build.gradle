@@ -30,10 +30,20 @@ dependencyManagement {
 		mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}"
     }
 }
-
+// ext {
+//     jacksonVersion = '2.13.5'
+// }
 
 dependencies {
-	implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager'
+
+	// jacksonversion 설정
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.4'
+	// implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    // implementation "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+    // implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+
+
+	//implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager'
 	//Secrtes Manger 연동을 위한 라이브러리
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'

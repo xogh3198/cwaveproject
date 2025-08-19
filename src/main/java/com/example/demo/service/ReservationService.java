@@ -22,7 +22,6 @@ public class ReservationService {
         this.scheduleRepository = scheduleRepository;
     }
 
-    // ▼▼▼ --- 수정된 부분 --- ▼▼▼
     @Transactional
     public Reservation reserveSeat(Long scheduleId, String userId, String seatCode) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
@@ -39,7 +38,6 @@ public class ReservationService {
         Reservation reservation = new Reservation(userId, schedule, seatCode);
         return reservationRepository.save(reservation);
     }
-    // ▲▲▲ --- 수정된 부분 --- ▲▲▲
 
     public Optional<Reservation> getReservationById(Long id) {
         return reservationRepository.findById(id);
@@ -49,7 +47,6 @@ public class ReservationService {
         return reservationRepository.findAll();
     }
 
-    // ▼▼▼ --- 추가된 부분 --- ▼▼▼
     @Transactional
     public void cancelReservation(Long reservationId) {
         // 예매 ID로 예매 정보 조회
@@ -65,5 +62,4 @@ public class ReservationService {
             System.out.println("예매 취소 완료: 예매 ID " + reservationId + ", 좌석 복구 완료");
         });
     }
-    // ▲▲▲ --- 추가된 부분 --- ▲▲▲
 }
