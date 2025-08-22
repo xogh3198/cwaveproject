@@ -4,8 +4,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentService {
-    
-    // PaymentService는 KafkaProducerService가 필요하다고 명시합니다.
+    //카프카 임시 주석
     private final KafkaProducerService kafkaProducerService;
 
     // Spring이 이 생성자를 통해 KafkaProducerService 타입의 Bean을 자동으로 주입합니다.

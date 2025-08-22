@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.service.PerformanceService;
 import com.example.demo.domain.Performance;
 import com.example.demo.domain.Reservation;
 import com.example.demo.domain.Schedule;
@@ -19,10 +18,7 @@ import lombok.AllArgsConstructor;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Schema(description = "결제 확인 응답")
@@ -42,15 +38,14 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final ReservationService reservationService;
-    // ▼▼▼ --- 수정된 부분 --- ▼▼▼
+    // 카프카 임시 주석
     private final KafkaProducerService kafkaProducerService;
 
-    public PaymentController(PaymentService paymentService, ReservationService reservationService,KafkaProducerService kafkaProducerService) {
+    public PaymentController(PaymentService paymentService, ReservationService reservationService, KafkaProducerService kafkaProducerService) {
         this.paymentService = paymentService;
         this.reservationService = reservationService;
-        this.kafkaProducerService = kafkaProducerService;  
+        this.kafkaProducerService = kafkaProducerService;    
     }
-    // ▲▲▲ --- 수정된 부분 --- ▲▲▲
 
     @Operation(summary = "결제 확인 처리", description = "예매에 대한 결제를 처리하고 티켓 시스템에 정보를 전송합니다.")
     @PostMapping("/{reservationId}/confirm")
@@ -60,7 +55,7 @@ public class PaymentController {
         boolean paymentSuccess = paymentService.processPayment(reservationId, "결제정보");
 
         if (paymentSuccess) {
-            // ▼▼▼ --- 수정된 부분 --- ▼▼▼
+            //카프카 임시 주석
             Optional<Reservation> reservationOptional = reservationService.getReservationById(reservationId);
             if (reservationOptional.isPresent()) {
                 Reservation reservation = reservationOptional.get();
@@ -82,7 +77,6 @@ public class PaymentController {
                 // 카프카 메시지 전송
                 kafkaProducerService.sendTicketEvent(event);
             }
-            // ▲▲▲ --- 수정된 부분 --- ▲▲▲
             
             return ResponseEntity.ok(new PaymentConfirmation(reservationId, "success"));
         } else {

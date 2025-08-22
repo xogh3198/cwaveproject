@@ -4,30 +4,36 @@ import com.example.demo.domain.Performance;
 import com.example.demo.domain.Schedule;
 import com.example.demo.repository.PerformanceRepository;
 import com.example.demo.repository.ScheduleRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional(readOnly = true)
+//@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PerformanceService {
 
     private final PerformanceRepository performanceRepository;
     private final ScheduleRepository scheduleRepository;
 
-    public PerformanceService(PerformanceRepository performanceRepository, ScheduleRepository scheduleRepository) {
-        this.performanceRepository = performanceRepository;
-        this.scheduleRepository = scheduleRepository;
-    }
+    // public PerformanceService(PerformanceRepository performanceRepository, ScheduleRepository scheduleRepository) {
+    //     this.performanceRepository = performanceRepository;
+    //     this.scheduleRepository = scheduleRepository;
+    // }
 
     // 이 메서드에 @Transactional 어노테이션을 추가하여 지연 로딩 문제를 해결합니다.
-    @Transactional
+    //@Transactional
+    @Cacheable("performance")
     public List<Performance> getAllPerformances() {
         return performanceRepository.findAll();
     }
-
+    @Cacheable(value = "performance", key = "#id")
     public Optional<Performance> getPerformance(Long id) {
         return performanceRepository.findById(id);
     }

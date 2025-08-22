@@ -25,11 +25,30 @@ public class KafkaConsumerService {
     private final ReservationRepository reservationRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * reservation.pending 토픽을 구독하여 예매를 순차적으로 처리하는 컨슈머
+     */
+    @KafkaListener(topics = "reservation.pending", groupId = "reserve-service-group")
+    public void consumeReservationEvent(String message) {
+        try {
+            String reservationIdString = message.replace("\"", "");
+            Long reservationId = Long.parseLong(reservationIdString);
+            //Long reservationId = Long.parseLong(message);
+            System.out.println("수신된 예매 요청 (대기열): reservationId " + reservationId);
+            reservationService.confirmReservation(reservationId);
+        } catch (Exception e) {
+            // 처리 실패 시 로그를 남기고, 해당 메시지는 DLQ(Dead Letter Queue)로 보내는 등의 후처리 로직을 추가할 수 있습니다.
+            System.err.println("예매 처리 실패. Reservation ID: " + message + ", 오류: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 기존의 예매 취소 로직을 처리하는 컨슈머
+     */
     @Transactional
     @KafkaListener(topics = "reserve.events", groupId = "reserve-service-group")
-    public void consume(ConsumerRecord<String, String> record) { // 파라미터를 ConsumerRecord로 변경
-        // 수신된 메시지의 헤더를 로그로 출력합니다.
-        System.out.println("===== Received Message Headers =====");
+    public void consumeCancellationEvent(ConsumerRecord<String, String> record) {
+        System.out.println("===== 수신된 메시지 (reserve.events) =====");
         for (Header header : record.headers()) {
             System.out.printf("Key: %s, Value: %s%n",
                     header.key(),
@@ -38,66 +57,25 @@ public class KafkaConsumerService {
         }
         System.out.println("==================================");
 
-        // 헤더의 event-type에 따라 분기 처리하는 예시
-        Header eventTypeHeader = record.headers().lastHeader("event-type");
-        if (eventTypeHeader != null) {
-            String eventType = new String(eventTypeHeader.value(), StandardCharsets.UTF_8);
-            System.out.println("Received event type: " + eventType);
-            // ex) if ("reserve.released".equals(eventType)) { ... }
-        }
-
-        // 메시지 본문(payload)을 처리하는 기존 로직을 호출합니다.
         processCancellation(record.value());
     }
 
-    // 기존 메시지 처리 로직을 별도 메서드로 분리하여 재사용성을 높입니다.
-    // private void processCancellation(String message) {
-    //     try {
-    //         Map<String, Object> data = objectMapper.readValue(message, Map.class);
-    //         Long reservationId = Long.parseLong(data.get("reservationId").toString());
-
-    //         Reservation reservation = reservationService.getReservationById(reservationId);
-    //         if (reservation != null) {
-    //             Schedule schedule = reservation.getSchedule();
-
-    //             schedule.setRemainingSeats(schedule.getRemainingSeats() + 1);
-    //             scheduleRepository.save(schedule);
-
-    //             reservationService.deleteReservation(reservationId);
-    //             System.out.println("Consumed message and cancelled reservation: " + reservationId);
-    //         }
-
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
     private void processCancellation(String message) {
         try {
             Map<String, Object> data = objectMapper.readValue(message, Map.class);
-            Long reservationId = Long.parseLong(data.get("reservationId").toString());
-
-            // ▼▼▼▼▼▼ 이 부분이 수정됩니다 ▼▼▼▼▼▼
-
-            // 1. Repository를 통해 직접 예매 정보를 조회합니다. (예외 발생 X)
-            Optional<Reservation> reservationOptional = reservationRepository.findById(reservationId);
-
-            // 2. 예매 정보가 존재할 경우에만 취소 로직을 실행합니다.
-            if (reservationOptional.isPresent()) {
-                Reservation reservation = reservationOptional.get();
-                Schedule schedule = reservation.getSchedule();
-
-                schedule.setRemainingSeats(schedule.getRemainingSeats() + 1);
-                scheduleRepository.save(schedule);
-
-                // 예외를 던지지 않는 deleteById를 사용합니다.
-                reservationRepository.deleteById(reservationId);
-
-                System.out.println("Consumed message and cancelled reservation: " + reservationId);
-            } else {
-                // 예매 정보가 없는 경우 로그만 남기고 정상 종료
-                System.out.println("Reservation not found for ID: " + reservationId + ". Message processing skipped.");
+            Object reservationIdObj = data.get("reservationId");
+            
+            if (reservationIdObj == null) {
+                reservationIdObj = data.get("reservation_id");
             }
-            // ▲▲▲▲▲▲ 여기까지 수정 ▲▲▲▲▲▲
+    
+            if (reservationIdObj == null) {
+                System.out.println("Reservation ID를 찾을 수 없어 메시지를 건너뜁니다.");
+                return;
+            }
+            Long reservationId = Long.parseLong(reservationIdObj.toString());
+            
+            reservationService.cancelReservation(reservationId);
 
         } catch (Exception e) {
             e.printStackTrace();

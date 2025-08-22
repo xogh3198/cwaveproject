@@ -37,6 +37,9 @@ public class Reservation {
     @Column(name = "seat_code", nullable = false)
     private String seatCode;
     // ▲▲▲ --- 수정된 부분 --- ▲▲▲
+    @Enumerated(EnumType.STRING)
+    @Schema(description = "예매 상태", example = "CONFIRMED")
+    private ReservationStatus status;
 
 
     // 생성자 수정
@@ -44,5 +47,6 @@ public class Reservation {
         this.userId = userId;
         this.schedule = schedule;
         this.seatCode = seatCode;
+        this.status = ReservationStatus.PENDING;
     }
 }

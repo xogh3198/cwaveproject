@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import java.io.Serializable; // Serializable 인터페이스 임포트
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -11,7 +12,7 @@ import lombok.Setter;
 @Table(name = "schedules")
 @Getter @Setter
 @NoArgsConstructor
-public class Schedule {
+public class Schedule implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
