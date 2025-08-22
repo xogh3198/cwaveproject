@@ -1,0 +1,56 @@
+
+
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>예매 완료</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>body { padding-top: 2rem; }</style>
+</head>
+<body>
+    <div class="container">
+        <h1>예매가 성공적으로 완료되었습니다! 🎉</h1>
+        <hr>
+        <div id="reservation-info" class="alert alert-info">
+            예매 정보를 불러오는 중...
+        </div>
+        <a href="index.html" class="btn btn-secondary mt-3">목록으로 돌아가기</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            // URL 파라미터 이름을 'id'에서 'reservationId'로 변경합니다.
+            const reservationId = params.get('reservationId'); 
+
+            if (reservationId) {
+                // 예매 정보 조회 API 호출
+                fetch(`http://localhost:8080/api/reservations/${reservationId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`예매 정보를 찾을 수 없습니다. (상태 코드: ${response.status})`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const infoDiv = document.getElementById('reservation-info');
+                        // data.performanceId 대신 data.schedule.performance.id로 공연 ID를 표시합니다.
+                        infoDiv.innerHTML = `
+                            <p><strong>예매 ID:</strong> ${data.id}</p>
+                            <p><strong>공연 ID:</strong> ${data.schedule.performance.id}</p>
+                            <p><strong>좌석 번호:</strong> ${data.seatNumber}</p>
+                            <p><strong>예매 시간:</strong> ${new Date(data.reservationTime).toLocaleString()}</p>
+                        `;
+                    })
+                    .catch(error => {
+                        document.getElementById('reservation-info').innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+                        console.error('예매 정보 로딩 오류:', error);
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

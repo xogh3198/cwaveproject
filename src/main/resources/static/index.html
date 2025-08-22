@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>공연 목록</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>body { padding-top: 2rem; }</style>
+</head>
+<body>
+    <div class="container">
+        <h1>공연 목록</h1>
+        <hr>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">제목</th>
+                    <th scope="col">설명</th>
+                    >>
+                </tr>
+            </thead>
+            <tbody id="performance-list">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('http://localhost:8080/api/performances')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('performance-list');
+                    data.forEach(perf => {
+                        const row = `
+                            <tr>
+                                <th scope="row">${perf.id}</th>
+                                <td><a href="performance-details.html?id=${perf.id}">${perf.name}</a></td>
+                                <td>${perf.description}</td>
+                            </tr>
+                        `;
+                        list.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Error fetching performances:', error));
+        });
+    </script>
+</body>
+</html>
